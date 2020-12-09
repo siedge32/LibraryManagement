@@ -20,6 +20,7 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
+		EnterpriseLibraryConfigurationToolBinariesPathV6 = packages\EnterpriseLibrary.Common.6.0.1304.0\lib\NET45;packages\EnterpriseLibrary.Validation.6.0.1304.0\lib\NET45
 		SolutionGuid = {90B24AF2-414D-435E-9025-FB89DFD9864C}
 	EndGlobalSection
 EndGlobal
