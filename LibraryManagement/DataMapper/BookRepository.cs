@@ -8,33 +8,33 @@ using System.Threading.Tasks;
 
 namespace LibraryManagement.DataMapper
 {
-    public class AuthorRepository : RepositoryBase<Author>
+    public class BookRepository : RepositoryBase<Book>
     {
-        public AuthorRepository(LibraryDbContext libraryDbContext) : base(libraryDbContext)
+        public BookRepository(LibraryDbContext libraryDbContext) : base(libraryDbContext)
         {
         }
 
-        public override void Create(Author entity)
+        public override void Create(Book entity)
         {
             base.Create(entity);
         }
 
-        public override IQueryable<Author> FindByCondition(Expression<Func<Author, bool>> expression)
+        public override IQueryable<Book> FindByCondition(Expression<Func<Book, bool>> expression)
         {
             return base.FindByCondition(expression);
         }
 
-        public override IQueryable<Author> FindAll()
+        public override IQueryable<Book> FindAll()
         {
             return base.FindAll();
         }
 
-        public override void Delete(Author entity)
+        public override void Delete(Book entity)
         {
             base.Delete(entity);
         }
 
-        public override void Update(Author entity)
+        public override void Update(Book entity)
         {
             base.Update(entity);
         }

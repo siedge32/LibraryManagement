@@ -65,7 +65,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataMapper\AuthorRepository.cs" />
+    <Compile Include="DataMapper\BookRepository.cs" />
+    <Compile Include="DataMapper\IRepositoryBase.cs" />
     <Compile Include="DataMapper\LibraryDbContext.cs" />
+    <Compile Include="DataMapper\RepositoryBase.cs" />
     <Compile Include="DomainModel\Author.cs" />
     <Compile Include="DomainModel\Book.cs" />
     <Compile Include="DomainModel\BookPublication.cs" />
@@ -97,6 +100,9 @@
     <EmbeddedResource Include="Migrations\202012091141584_Initial.resx">
       <DependentUpon>202012091141584_Initial.cs</DependentUpon>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="BusinessLayer\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

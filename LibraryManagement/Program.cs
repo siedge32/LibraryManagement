@@ -34,6 +34,9 @@ namespace LibraryManagement
 
         static void Main(string[] args)
         {
+
+            var dbContex = new LibraryDbContext();
+
             var author = new Author
             {
                 FirstName = "Bogdan",
@@ -42,24 +45,33 @@ namespace LibraryManagement
 
             };
 
-            var ruleSets = new List<string> { "AuthorNotNull", "AuthorNameStringLength", "AuthorNameRegex", "AuthorInvalidGender" };
+            // var ruleSets = new List<string> { "AuthorFieldNotNull", "AuthorNameStringLength", "AuthorNameRegex", "AuthorInvalidGender" };
 
-            foreach (var ruleSet in ruleSets)
-            {
-                var results = ValidateEntity(ruleSet, author);
-                if (!results.IsValid)
-                {
-                    LogResults(results);
-                    break;
-                }
-            }
+            //foreach (var ruleSet in ruleSets)
+            //{
+            //    // author = null;
+            //    var results = ValidateEntity(ruleSet, author);
+            //    if (!results.IsValid)
+            //    {
+            //        LogResults(results);
+            //        break;
+            //    }
+            //}
 
 
             // Entity Framework 6 TEST
-            // var repo = new AuthorRepository(new LibraryDbContext());
-            // var logger = new Logger();
-            // logger.LogError("Hello logging world!", MethodBase.GetCurrentMethod());
-            // repo.AddAuthor(author);
+            var repobase = new RepositoryBase<Author>(dbContex);
+
+            //var authorsThatMeetCondition = repobase.FindByCondition(a => a.Id == 1);
+            //if(authorsThatMeetCondition.Count() == 1)
+            //{
+            //    var myAuthor = authorsThatMeetCondition.First();
+            //    myAuthor.Adress = "Prunului 14";
+            //    repobase.Update(myAuthor);
+
+            //}
+
+            //repobase.Create(author);
         }
     }
 }
