@@ -64,10 +64,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BusinessLayer\BookPublicationService.cs" />
+    <Compile Include="BusinessLayer\BookService.cs" />
+    <Compile Include="BusinessLayer\FieldService.cs" />
+    <Compile Include="BusinessLayer\ReaderService.cs" />
     <Compile Include="DataMapper\AuthorRepository.cs" />
+    <Compile Include="DataMapper\BookPublicationRepository.cs" />
     <Compile Include="DataMapper\BookRepository.cs" />
+    <Compile Include="DataMapper\FieldRepository.cs" />
     <Compile Include="DataMapper\IRepositoryBase.cs" />
+    <Compile Include="DataMapper\LibrarianRepository.cs" />
     <Compile Include="DataMapper\LibraryDbContext.cs" />
+    <Compile Include="DataMapper\ReaderRepository.cs" />
     <Compile Include="DataMapper\RepositoryBase.cs" />
     <Compile Include="DomainModel\Author.cs" />
     <Compile Include="DomainModel\Book.cs" />
@@ -79,15 +87,30 @@
     <Compile Include="DomainModel\Librarian.cs" />
     <Compile Include="DomainModel\PublishingHouse.cs" />
     <Compile Include="DomainModel\Reader.cs" />
-    <Compile Include="Migrations\202012091141584_Initial.cs" />
+    <Compile Include="Migrations\202012091141584_Initial.cs">
+      <ExcludeFromStyleCop>True</ExcludeFromStyleCop>
+    </Compile>
     <Compile Include="Migrations\202012091141584_Initial.designer.cs">
       <DependentUpon>202012091141584_Initial.cs</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\Configuration.cs" />
-    <Compile Include="Program.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Migrations\202012231850558_AddedDateRentedBookWuthdrawal.cs">
+      <ExcludeFromStyleCop>True</ExcludeFromStyleCop>
+    </Compile>
+    <Compile Include="Migrations\202012231850558_AddedDateRentedBookWuthdrawal.designer.cs">
+      <DependentUpon>202012231850558_AddedDateRentedBookWuthdrawal.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\Configuration.cs">
+      <ExcludeFromStyleCop>True</ExcludeFromStyleCop>
+    </Compile>
+    <Compile Include="Program.cs">
+      <ExcludeFromStyleCop>True</ExcludeFromStyleCop>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs">
+      <ExcludeFromStyleCop>True</ExcludeFromStyleCop>
+    </Compile>
     <Compile Include="Utils\ILogger.cs" />
     <Compile Include="Utils\Logger.cs" />
+    <Compile Include="Utils\ValidationUtil.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -100,10 +123,11 @@
     <EmbeddedResource Include="Migrations\202012091141584_Initial.resx">
       <DependentUpon>202012091141584_Initial.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202012231850558_AddedDateRentedBookWuthdrawal.resx">
+      <DependentUpon>202012231850558_AddedDateRentedBookWuthdrawal.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="BusinessLayer\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

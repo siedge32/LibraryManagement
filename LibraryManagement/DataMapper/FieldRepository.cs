@@ -1,41 +1,22 @@
-﻿using LibraryManagement.DomainModel;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿// <copyright file="FieldRepository.cs" company="Transilvania University of Brasov">
+// Hanganu Bogdan
+// </copyright>
 namespace LibraryManagement.DataMapper
 {
+    using LibraryManagement.DomainModel;
+
+    /// <summary>
+    /// The FieldRepository class
+    /// </summary>
+    /// <seealso cref="LibraryManagement.DataMapper.RepositoryBase{LibraryManagement.DomainModel.Field}" />
     public class FieldRepository : RepositoryBase<Field>
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FieldRepository"/> class.
+        /// </summary>
+        /// <param name="libraryDbContext">The library database context.</param>
         public FieldRepository(LibraryDbContext libraryDbContext) : base(libraryDbContext)
         {
-        }
-        public override void Create(Field entity)
-        {
-            base.Create(entity);
-        }
-
-        public override IQueryable<Field> FindByCondition(Expression<Func<Field, bool>> expression)
-        {
-            return base.FindByCondition(expression);
-        }
-
-        public override IQueryable<Field> FindAll()
-        {
-            return base.FindAll();
-        }
-
-        public override void Delete(Field entity)
-        {
-            base.Delete(entity);
-        }
-
-        public override void Update(Field entity)
-        {
-            base.Update(entity);
         }
     }
 }

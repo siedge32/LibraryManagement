@@ -1,30 +1,55 @@
-﻿using LibraryManagement.Utils;
-using System;
-using System.Collections.Generic;
-using System.Data.Entity;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿// <copyright file="RepositoryBase.cs" company="Transilvania University of Brasov">
+// Hanganu Bogdan
+// </copyright>
 namespace LibraryManagement.DataMapper
 {
+    using System;
+    using System.Data.Entity;
+    using System.Linq;
+    using System.Linq.Expressions;
+    using System.Reflection;
+    using LibraryManagement.Utils;
+
+    /// <summary>
+    /// The RepositoryBase class
+    /// </summary>
+    /// <typeparam name="T">The data model entity</typeparam>
+    /// <seealso cref="LibraryManagement.DataMapper.IRepositoryBase{T}" />
     public class RepositoryBase<T> : IRepositoryBase<T> where T : class
     {
-        protected LibraryDbContext LibraryDbContext { get; set; }
-
-        private ILogger logger { get; set; }
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RepositoryBase{T}"/> class.
+        /// </summary>
+        /// <param name="libraryDbContext">The library database context.</param>
         public RepositoryBase(LibraryDbContext libraryDbContext)
         {
             LibraryDbContext = libraryDbContext;
-            logger = new Logger();
+            this.Logger = new Logger();
         }
 
+        /// <summary>
+        /// Gets or sets the library database context.
+        /// </summary>
+        /// <value>
+        /// The library database context.
+        /// </value>
+        protected LibraryDbContext LibraryDbContext { get; set; }
+
+        /// <summary>
+        /// Gets or sets the logger.
+        /// </summary>
+        /// <value>
+        /// The logger.
+        /// </value>
+        private ILogger Logger { get; set; }
+
+        /// <summary>
+        /// Creates the specified entity.
+        /// </summary>
+        /// <param name="entity">The entity.</param>
         public virtual void Create(T entity)
         {
-            logger.LogInfo($"Creating a new {entity.GetType()}", MethodBase.GetCurrentMethod());
+            this.Logger.LogInfo($"Creating a new {entity.GetType()}", MethodBase.GetCurrentMethod());
             try
             {
                 LibraryDbContext.Set<T>().Add(entity);
@@ -32,58 +57,79 @@ namespace LibraryManagement.DataMapper
             }
             catch (Exception ex)
             {
-                logger.LogWarning($"Error on creating {entity.GetType()}, message {ex.Message}", MethodBase.GetCurrentMethod());
+                this.Logger.LogWarning($"Error on creating {entity.GetType()}, message {ex.Message}", MethodBase.GetCurrentMethod());
             }
         }
 
+        /// <summary>
+        /// Deletes the specified entity.
+        /// </summary>
+        /// <param name="entity">The entity.</param>
         public virtual void Delete(T entity)
         {
-            logger.LogInfo($"Deleting {entity.GetType()}", MethodBase.GetCurrentMethod());
+            this.Logger.LogInfo($"Deleting {entity.GetType()}", MethodBase.GetCurrentMethod());
             try
             {
                 LibraryDbContext.Entry(entity).State = EntityState.Deleted;
-                this.LibraryDbContext.Set<T>().Remove(entity);
+                LibraryDbContext.Set<T>().Remove(entity);
                 LibraryDbContext.SaveChanges();
             }
             catch (Exception ex)
             {
-                logger.LogWarning($"Error on Deleting {entity.GetType()}, message {ex.Message}", MethodBase.GetCurrentMethod());
+                this.Logger.LogWarning($"Error on Deleting {entity.GetType()}, message {ex.Message}", MethodBase.GetCurrentMethod());
             }
         }
 
+        /// <summary>
+        /// Finds all.
+        /// </summary>
+        /// <returns>
+        /// Returns all entities
+        /// </returns>
         public virtual IQueryable<T> FindAll()
         {
-            logger.LogInfo($"Find all", MethodBase.GetCurrentMethod());
+            this.Logger.LogInfo($"Find all", MethodBase.GetCurrentMethod());
             try
             {
-                return this.LibraryDbContext.Set<T>().AsNoTracking();
+                return LibraryDbContext.Set<T>().AsNoTracking();
             }
             catch (Exception ex)
             {
-                logger.LogWarning($"Find all, message {ex.Message}", MethodBase.GetCurrentMethod());
+                this.Logger.LogWarning($"Find all, message {ex.Message}", MethodBase.GetCurrentMethod());
             }
 
             return null;
         }
 
+        /// <summary>
+        /// Finds the by condition.
+        /// </summary>
+        /// <param name="expression">The expression.</param>
+        /// <returns>
+        /// Return entities that met the condition
+        /// </returns>
         public virtual IQueryable<T> FindByCondition(Expression<Func<T, bool>> expression)
         {
-            logger.LogInfo($"FindByCondition", MethodBase.GetCurrentMethod());
+            this.Logger.LogInfo($"FindByCondition", MethodBase.GetCurrentMethod());
             try
             {
                 return LibraryDbContext.Set<T>().Where(expression).AsNoTracking();
             }
             catch (Exception ex)
             {
-                logger.LogWarning($"FindByCondition, message {ex.Message}", MethodBase.GetCurrentMethod());
+                this.Logger.LogWarning($"FindByCondition, message {ex.Message}", MethodBase.GetCurrentMethod());
             }
 
             return null;
         }
 
+        /// <summary>
+        /// Updates the specified entity.
+        /// </summary>
+        /// <param name="entity">The entity.</param>
         public virtual void Update(T entity)
         {
-            logger.LogInfo($"Update {entity.GetType()}", MethodBase.GetCurrentMethod());
+            this.Logger.LogInfo($"Update {entity.GetType()}", MethodBase.GetCurrentMethod());
             try
             {
                 LibraryDbContext.Entry(entity).State = EntityState.Modified;
@@ -91,7 +137,7 @@ namespace LibraryManagement.DataMapper
             }
             catch (Exception ex)
             {
-                logger.LogWarning($"Update {entity.GetType()}, message {ex.Message}", MethodBase.GetCurrentMethod());
+                this.Logger.LogWarning($"Update {entity.GetType()}, message {ex.Message}", MethodBase.GetCurrentMethod());
             }
         }
     }

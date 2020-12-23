@@ -1,41 +1,22 @@
-﻿using LibraryManagement.DomainModel;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿// <copyright file="LibrarianRepository.cs" company="Transilvania University of Brasov">
+// Hanganu Bogdan
+// </copyright>
 namespace LibraryManagement.DataMapper
 {
+    using LibraryManagement.DomainModel;
+
+    /// <summary>
+    /// The LibrarianRepository class
+    /// </summary>
+    /// <seealso cref="LibraryManagement.DataMapper.RepositoryBase{LibraryManagement.DomainModel.Librarian}" />
     public class LibrarianRepository : RepositoryBase<Librarian>
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LibrarianRepository"/> class.
+        /// </summary>
+        /// <param name="libraryDbContext">The library database context.</param>
         public LibrarianRepository(LibraryDbContext libraryDbContext) : base(libraryDbContext)
         {
-        }
-        public override void Create(Librarian entity)
-        {
-            base.Create(entity);
-        }
-
-        public override IQueryable<Librarian> FindByCondition(Expression<Func<Librarian, bool>> expression)
-        {
-            return base.FindByCondition(expression);
-        }
-
-        public override IQueryable<Librarian> FindAll()
-        {
-            return base.FindAll();
-        }
-
-        public override void Delete(Librarian entity)
-        {
-            base.Delete(entity);
-        }
-
-        public override void Update(Librarian entity)
-        {
-            base.Update(entity);
         }
     }
 }
