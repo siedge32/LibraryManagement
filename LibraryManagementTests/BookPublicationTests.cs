@@ -71,7 +71,8 @@ namespace LibraryManagementTests
                 CoverMaterial = "Textil",
                 PublishingHouse = pH,
                 Book = book,
-                BookStock = bookStock
+                BookStock = bookStock,
+                BookWithdrawals = new List<BookWithdrawal>()
             };
 
             book.BookPublications = new List<BookPublication> { bookpH };
@@ -275,6 +276,27 @@ namespace LibraryManagementTests
         {
             var canRent = BookPublicationService.CanRentBookStockAmount(bookpH);
             Assert.True(canRent);
+        }
+
+        [Test]
+        public void TestCanRentBookStockAmount()
+        {
+            bookStock.NumberOfBooks = 7;
+            var canRent = this.BookPublicationService.CanRentBookStockAmount(bookpH);
+            Assert.False(canRent);
+        }
+
+        [Test]
+        public void TestGetBookWithdrawals()
+        {
+            Assert.IsTrue(bookpH.BookWithdrawals.Count == 0);
+        }
+
+        [Test]
+        public void TestSetId()
+        {
+            bookpH.Id = 1;
+            Assert.IsTrue(bookpH.Id == 1);
         }
     }
 }

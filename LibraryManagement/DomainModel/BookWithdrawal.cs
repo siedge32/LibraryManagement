@@ -3,12 +3,15 @@
 // </copyright>
 namespace LibraryManagement.DomainModel
 {
+    using Microsoft.Practices.EnterpriseLibrary.Validation;
+    using Microsoft.Practices.EnterpriseLibrary.Validation.Validators;
     using System;
     using System.Collections.Generic;
 
     /// <summary>
     /// The BookWithdrawal class
     /// </summary>
+    [HasSelfValidation]
     public class BookWithdrawal
     {
         /// <summary>
@@ -41,6 +44,7 @@ namespace LibraryManagement.DomainModel
         /// <value>
         /// The reader.
         /// </value>
+        [NotNullValidator(MessageTemplate = "The Reader cannot be null", Ruleset = "BookWithdrawalFieldNotNull")]
         public Reader Reader { get; set; }
 
         /// <summary>
@@ -49,6 +53,7 @@ namespace LibraryManagement.DomainModel
         /// <value>
         /// The librarian.
         /// </value>
+        [NotNullValidator(MessageTemplate = "The Librarian cannot be null", Ruleset = "BookWithdrawalFieldNotNull")]
         public Librarian Librarian { get; set; }
 
         /// <summary>
@@ -66,5 +71,23 @@ namespace LibraryManagement.DomainModel
         /// The extensions.
         /// </value>
         public virtual ICollection<Extension> Extensions { get; set; }
+
+        /// <summary>
+        /// Validates the specified validation results.
+        /// </summary>
+        /// <param name="validationResults">The validation results.</param>
+        [SelfValidation]
+        public void Validate(ValidationResults validationResults)
+        {
+            if (this.BookPublications == null || this.BookPublications.Count == 0)
+            {
+                validationResults.AddResult(new ValidationResult("Empty BookPublications or null", this, "ValidateBookPublications", "error", null));
+            }
+
+            if (this.DateRented > this.DateToReturn)
+            {
+                validationResults.AddResult(new ValidationResult("DateRented is future dated than DateToReturn", this, "ValidateBookPublications", "error", null));
+            }
+        }
     }
 }

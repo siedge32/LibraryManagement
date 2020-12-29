@@ -1,15 +1,9 @@
 ﻿using LibraryManagement.BusinessLayer;
 using LibraryManagement.DataMapper;
 using LibraryManagement.DomainModel;
-using LibraryManagement.Utils;
 using Moq;
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
 using System.Data.Entity;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LibraryManagementTests
 {

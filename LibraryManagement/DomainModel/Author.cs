@@ -49,6 +49,8 @@ namespace LibraryManagement.DomainModel
         /// <value>
         /// The address.
         /// </value>
+        [NotNullValidator(MessageTemplate = "The Adress cannot be null", Ruleset = "AuthorFieldNotNull")]
+        [StringLengthValidator(2, RangeBoundaryType.Inclusive, 100, RangeBoundaryType.Inclusive, ErrorMessage = "The LastName should have between {3} and {5} letters", Ruleset = "AuthorNameStringLength")]
         public string Adress { get; set; }
 
         /// <summary>

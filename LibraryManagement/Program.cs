@@ -74,9 +74,7 @@ namespace LibraryManagement
             };
 
             
-            var wasCreated = new BookPublicationService(new BookPublicationRepository(dbContex)).CreateBookPublication(bookpH);
-
-
+            // var wasCreated = new BookPublicationService(new BookPublicationRepository(dbContex)).CreateBookPublication(bookpH);
 
             //var wasCreated = new BookService(new BookRepository(dbContex)).CreateBook(book);
 

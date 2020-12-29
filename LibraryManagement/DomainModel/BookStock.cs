@@ -3,9 +3,13 @@
 // </copyright>
 namespace LibraryManagement.DomainModel
 {
+    using Microsoft.Practices.EnterpriseLibrary.Validation;
+    using Microsoft.Practices.EnterpriseLibrary.Validation.Validators;
+
     /// <summary>
     /// The BookStock class
     /// </summary>
+    [HasSelfValidation]
     public class BookStock
     {
         /// <summary>
@@ -22,6 +26,7 @@ namespace LibraryManagement.DomainModel
         /// <value>
         /// The number of books.
         /// </value>
+        [RangeValidator(1, RangeBoundaryType.Inclusive, 100, RangeBoundaryType.Inclusive, MessageTemplate = "NumberOfBooks must be between {3} and {5}", Ruleset = "BookStockRangeValidator")]
         public int NumberOfBooks { get; set; }
 
         /// <summary>
@@ -30,6 +35,7 @@ namespace LibraryManagement.DomainModel
         /// <value>
         /// The number of books for lecture.
         /// </value>
+        [RangeValidator(0, RangeBoundaryType.Inclusive, 100, RangeBoundaryType.Inclusive, MessageTemplate = "NumberOfBooksForLecture must be between {3} and {5}", Ruleset = "BookStockRangeValidator")]
         public int NumberOfBooksForLecture { get; set; }
 
         /// <summary>
@@ -39,5 +45,16 @@ namespace LibraryManagement.DomainModel
         /// The book publication.
         /// </value>
         public virtual BookPublication BookPublication { get; set; }
+
+        /// <summary>Validates the specified validation results.</summary>
+        /// <param name="validationResults">The validation results.</param>
+        [SelfValidation]
+        public void Validate(ValidationResults validationResults)
+        {
+            if (this.NumberOfBooksForLecture > this.NumberOfBooks)
+            {
+                validationResults.AddResult(new ValidationResult("NumberOfBooksForLecture greater than NumberOfBooks", this, "ValidateBookStock", "error", null));
+            }
+        }
     }
 }

@@ -101,7 +101,100 @@ namespace LibraryManagement.BusinessLayer
                 return false;
             }
 
+            if (!this.CheckNumberOfFieldsInLastGivenMonths(bookPublications, reader))
+            {
+                Logger.LogError("The number of categories of the rented books is invalid", MethodBase.GetCurrentMethod());
+                return false;
+            }
+
+            if (!this.CheckSameBookRentedDelta(bookPublications, reader))
+            {
+                Logger.LogError("One of the books has been rented more", MethodBase.GetCurrentMethod());
+                return false;
+            }
+
+            if (!this.CheckNumberOfBooksInOneDay(bookPublications, reader))
+            {
+                Logger.LogError("Can't rent so much books in one day", MethodBase.GetCurrentMethod());
+                return false;
+            }
+
             return true;
+        }
+
+        public bool CheckNumberOfBooksInOneDay(List<BookPublication> bookPublications, Reader reader)
+        {
+            var ncz = int.Parse(ConfigurationManager.AppSettings["NCZ"]);
+
+            var bookPublicationsInPeriodRented = this.GetBookPublicationsInPeriod(reader, 1).Select(b => b.Book).ToList();
+            if (bookPublicationsInPeriodRented.Count + bookPublications.Count > ncz)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public bool CheckSameBookRentedDelta(List<BookPublication> bookPublications, Reader reader)
+        {
+            var delta = int.Parse(ConfigurationManager.AppSettings["DELTA"]);
+
+            var bookPublicationsInPeriodRented = this.GetBookPublicationsInPeriod(reader, delta).Select(b => b.Book).Distinct().ToList();
+
+            foreach (var bookPublication in bookPublications)
+            {
+                if (bookPublicationsInPeriodRented.FirstOrDefault(bpr => bpr.Name.Equals(bookPublication.Book.Name)) != null)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        /// <summary>Checks the number of fields in last given months.</summary>
+        /// <param name="bookPublications">The book publications.</param>
+        /// <param name="reader">The reader.</param>
+        /// <returns>
+        ///   <br />
+        /// </returns>
+        public bool CheckNumberOfFieldsInLastGivenMonths(List<BookPublication> bookPublications, Reader reader)
+        {
+            var d = int.Parse(ConfigurationManager.AppSettings["D"]);
+            var l = int.Parse(ConfigurationManager.AppSettings["L"]);
+
+            var books = bookPublications.Select(bookPublication => bookPublication.Book).ToList();
+            var bookPublicationsInPeriod = this.GetBookPublicationsInPeriod(reader, l * 30).Select(b => b.Book).ToList();
+            var allBooks = books.Union(bookPublicationsInPeriod).ToList();
+
+            var distinctFields = allBooks.SelectMany(b => b.Categories).Select(f => this.GetParentField(f)).ToList();
+            var groupedFields = distinctFields.GroupBy(dc => dc.Id).ToList();
+
+            foreach (var groupedField in groupedFields)
+            {
+                var numberOfBooks = groupedField.Count();
+                if (numberOfBooks > d)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        /// <summary>Gets the parent field.</summary>
+        /// <param name="field">The field.</param>
+        /// <returns>
+        ///   <br />
+        /// </returns>
+        public Field GetParentField(Field field)
+        {
+            while (field.ParentField != null)
+            {
+                field = field.ParentField;
+            }
+
+            return field;
         }
 
         /// <summary>Checks the number of books.</summary>
@@ -121,7 +214,7 @@ namespace LibraryManagement.BusinessLayer
             {
                 var books = new List<Book>();
                 bookPublications.ForEach(bookPublication => books.Add(bookPublication.Book));
-                if (this.NumberOfDistinctiveCategoriesForBooks(books) < 2)
+                if (this.GetDistinctiveCategoriesForBooks(books).Count < 2)
                 {
                     return false;
                 }
@@ -135,7 +228,7 @@ namespace LibraryManagement.BusinessLayer
         /// <returns>
         ///   <br />
         /// </returns>
-        public int NumberOfDistinctiveCategoriesForBooks(List<Book> books)
+        public List<Field> GetDistinctiveCategoriesForBooks(List<Book> books)
         {
             var allCategoriesFromBooks = new List<Field>();
             foreach (var book in books)
@@ -149,7 +242,7 @@ namespace LibraryManagement.BusinessLayer
             var distinctiveFields = new List<Field>();
             if (allCategoriesFromBooks.Count == 0)
             {
-                return 0;
+                return new List<Field>();
             }
 
             foreach (var field in allCategoriesFromBooks)
@@ -169,7 +262,7 @@ namespace LibraryManagement.BusinessLayer
                 }
             }
 
-            return distinctiveFields.Count;
+            return distinctiveFields;
         }
 
         /// <summary>Checks the number of books in period.</summary>
@@ -183,16 +276,93 @@ namespace LibraryManagement.BusinessLayer
             var nmc = int.Parse(ConfigurationManager.AppSettings["NMC"]);
             var per = int.Parse(ConfigurationManager.AppSettings["PER"]);
 
-            var numberOfBooksRentedInPeriod = 0;
+            var bookPublicationsRentedInPeriod = this.GetBookPublicationsInPeriod(reader, per);
+            var numberOfBooksRentedInPeriod = bookPublicationsRentedInPeriod.Count;
+
+            if (numberOfBooksRentedInPeriod + bookPublications.Count > nmc)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>Gets the book publications in period.</summary>
+        /// <param name="reader">The reader.</param>
+        /// <param name="period">The period.</param>
+        /// <returns>
+        ///   <br />
+        /// </returns>
+        public List<BookPublication> GetBookPublicationsInPeriod(Reader reader, int period)
+        {
+            var bookPublicationsRentedInPeriod = new List<BookPublication>();
+
+            if (reader.BookWithdrawals == null)
+            {
+                return bookPublicationsRentedInPeriod;
+            }
+
             foreach (var bookWithdrawal in reader.BookWithdrawals)
             {
-                if ((bookWithdrawal.DateToReturn - bookWithdrawal.DateRented).TotalDays > per)
+                if ((bookWithdrawal.DateToReturn - bookWithdrawal.DateRented).TotalDays <= period)
                 {
-                    numberOfBooksRentedInPeriod += bookWithdrawal.BookPublications.Count;
+                    foreach (var bookPublication in bookWithdrawal.BookPublications)
+                    {
+                        bookPublicationsRentedInPeriod.Add(bookPublication);
+                    }
                 }
             }
 
-            if (numberOfBooksRentedInPeriod + bookPublications.Count > nmc)
+            return bookPublicationsRentedInPeriod;
+        }
+
+        /// <summary>Adds the extension.</summary>
+        /// <param name="reader">The reader.</param>
+        /// <param name="bookWithdrawal">The book withdrawal.</param>
+        /// <param name="dateWasMade">The date was made.</param>
+        /// <param name="dateToReturn">The date to return.</param>
+        /// <returns>
+        ///   <br />
+        /// </returns>
+        public bool AddExtension(Reader reader, BookWithdrawal bookWithdrawal, DateTime dateWasMade, DateTime dateToReturn)
+        {
+            if (reader == null || bookWithdrawal == null)
+            {
+                Logger.LogError("BookWithdrawal or Reader is null", MethodBase.GetCurrentMethod());
+                return false;
+            }
+
+            if (dateWasMade > dateToReturn)
+            {
+                Logger.LogError("DateWasMade bigger than dateToReturn", MethodBase.GetCurrentMethod());
+                return false;
+            }
+
+            if (!this.CanAddExtension(reader, dateWasMade))
+            {
+                Logger.LogError("Can't add extension", MethodBase.GetCurrentMethod());
+                return false;
+            }
+
+            var extension = new Extension { BookWithdrawal = bookWithdrawal, DateExtensionWasMade = dateWasMade, DateToReturn = dateToReturn };
+            bookWithdrawal.Extensions.Add(extension);
+
+            return true;
+        }
+
+        /// <summary>Determines whether this instance [can add extension] the specified reader.</summary>
+        /// <param name="reader">The reader.</param>
+        /// <param name="date">The date.</param>
+        /// <returns>
+        /// <c>true</c> if this instance [can add extension] the specified reader; otherwise, <c>false</c>.</returns>
+        private bool CanAddExtension(Reader reader, DateTime date)
+        {
+            var lim = int.Parse(ConfigurationManager.AppSettings["LIM"]);
+
+            var allExtension = reader.BookWithdrawals.SelectMany(b => b.Extensions).ToList();
+            var extensionWithin90Days = allExtension.Count(ext => (date - ext.DateExtensionWasMade).TotalDays < 90);
+
+            if (extensionWithin90Days > lim)
             {
                 return false;
             }

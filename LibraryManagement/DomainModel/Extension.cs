@@ -4,10 +4,13 @@
 namespace LibraryManagement.DomainModel
 {
     using System;
+    using Microsoft.Practices.EnterpriseLibrary.Validation;
+    using Microsoft.Practices.EnterpriseLibrary.Validation.Validators;
 
     /// <summary>
     /// The Extension class 
     /// </summary>
+    [HasSelfValidation]
     public class Extension
     {
         /// <summary>
@@ -24,7 +27,17 @@ namespace LibraryManagement.DomainModel
         /// <value>
         /// The date to return.
         /// </value>
+        [NotNullValidator(MessageTemplate = "The DateToReturn cannot be null", Ruleset = "ExtensionFieldNotNull")]
         public DateTime DateToReturn { get; set; }
+
+        /// <summary>
+        /// Gets or sets the date extension was made.
+        /// </summary>
+        /// <value>
+        /// The date to return.
+        /// </value>
+        [NotNullValidator(MessageTemplate = "The DateExtensionWasMade cannot be null", Ruleset = "ExtensionFieldNotNull")]
+        public DateTime DateExtensionWasMade { get; set; }
 
         /// <summary>
         /// Gets or sets the book withdrawal.
@@ -33,5 +46,18 @@ namespace LibraryManagement.DomainModel
         /// The book withdrawal.
         /// </value>
         public BookWithdrawal BookWithdrawal { get; set; }
+
+        /// <summary>
+        /// Validates the specified validation results.
+        /// </summary>
+        /// <param name="validationResults">The validation results.</param>
+        [SelfValidation]
+        public void Validate(ValidationResults validationResults)
+        {
+            if (this.DateExtensionWasMade > this.DateToReturn)
+            {
+                validationResults.AddResult(new ValidationResult("DateExtensionWasMade is greater than DateToReturn", this, "ValidateCategories", "error", null));
+            }
+        }
     }
 }

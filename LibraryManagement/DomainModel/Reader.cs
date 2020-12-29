@@ -53,6 +53,8 @@ namespace LibraryManagement.DomainModel
         /// <value>
         /// The address.
         /// </value>
+        [NotNullValidator(MessageTemplate = "The Address cannot be null", Ruleset = "ReaderFieldNotNull")]
+        [StringLengthValidator(2, RangeBoundaryType.Inclusive, 100, RangeBoundaryType.Inclusive, ErrorMessage = "The Adress should have between {3} and {5} letters", Ruleset = "ReaderNameStringLength")]
         public string Address { get; set; }
 
         /// <summary>

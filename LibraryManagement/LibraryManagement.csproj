@@ -99,6 +99,12 @@
     <Compile Include="Migrations\202012231850558_AddedDateRentedBookWuthdrawal.designer.cs">
       <DependentUpon>202012231850558_AddedDateRentedBookWuthdrawal.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202012241553354_AddedDateExtensionWasMadeToExtensionClass.cs">
+      <ExcludeFromStyleCop>True</ExcludeFromStyleCop>
+    </Compile>
+    <Compile Include="Migrations\202012241553354_AddedDateExtensionWasMadeToExtensionClass.designer.cs">
+      <DependentUpon>202012241553354_AddedDateExtensionWasMadeToExtensionClass.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs">
       <ExcludeFromStyleCop>True</ExcludeFromStyleCop>
     </Compile>
@@ -125,6 +131,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202012231850558_AddedDateRentedBookWuthdrawal.resx">
       <DependentUpon>202012231850558_AddedDateRentedBookWuthdrawal.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202012241553354_AddedDateExtensionWasMadeToExtensionClass.resx">
+      <DependentUpon>202012241553354_AddedDateExtensionWasMadeToExtensionClass.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup />
