@@ -44,6 +44,7 @@ namespace LibraryManagement.DomainModel
         /// <value>
         /// The book publication.
         /// </value>
+        [NotNullValidator(MessageTemplate = "The BookPublication cannot be null", Ruleset = "BookStockFieldNotNull")]
         public virtual BookPublication BookPublication { get; set; }
 
         /// <summary>Validates the specified validation results.</summary>

@@ -39,6 +39,7 @@ namespace LibraryManagement.DomainModel
         /// </value>
         [NotNullValidator(MessageTemplate = "The CoverMaterial of the book cannot be null", Ruleset = "BookPublicationFieldNotNull")]
         [StringLengthValidator(2, RangeBoundaryType.Inclusive, 40, RangeBoundaryType.Inclusive, ErrorMessage = "The CoverMaterial of the book should have between {3} and {5} letters", Ruleset = "BookPublicationCoverStringLength")]
+        [RegexValidator(@"^[a-zA-Z]+$", MessageTemplate = "Only characters", Ruleset = "BookPublicationNameRegex")]
         public string CoverMaterial { get; set; }
 
         /// <summary>

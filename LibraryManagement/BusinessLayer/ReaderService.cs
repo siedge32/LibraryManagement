@@ -17,14 +17,14 @@ namespace LibraryManagement.BusinessLayer
     /// </summary>
     public class ReaderService
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ReaderService"/> class.
-        /// </summary>
+        /// <summary>Initializes a new instance of the <see cref="ReaderService" /> class.</summary>
         /// <param name="readerRepository">The reader repository.</param>
-        public ReaderService(ReaderRepository readerRepository)
+        /// <param name="bookPublicationRepository">The book publication repository.</param>
+        public ReaderService(ReaderRepository readerRepository, BookPublicationRepository bookPublicationRepository)
         {
             ReaderRepository = readerRepository;
             Logger = new Logger();
+            BookPublicationService = new BookPublicationService(bookPublicationRepository);
         }
 
         /// <summary>
@@ -43,12 +43,33 @@ namespace LibraryManagement.BusinessLayer
         /// </value>
         private Logger Logger { get; set; }
 
+        /// <summary>Gets or sets the book publication service.</summary>
+        /// <value>The book publication service.</value>
+        private BookPublicationService BookPublicationService { get; set; }
+
         /// <summary>
         /// Adds the reader.
         /// </summary>
         /// <param name="reader">The reader.</param>
         /// <returns>True if the reader is created, false else</returns>
         public bool AddReader(Reader reader)
+        {
+            var isReaderValid = this.ValidateReader(reader);
+            if (!isReaderValid)
+            {
+                return false;
+            }
+
+            this.ReaderRepository.Create(reader);
+            return true;
+        }
+
+        /// <summary>Validates the reader.</summary>
+        /// <param name="reader">The reader.</param>
+        /// <returns>
+        ///   <br />
+        /// </returns>
+        public bool ValidateReader(Reader reader)
         {
             if (reader == null)
             {
@@ -72,7 +93,6 @@ namespace LibraryManagement.BusinessLayer
                 }
             }
 
-            ReaderRepository.Create(reader);
             return true;
         }
 
@@ -83,37 +103,62 @@ namespace LibraryManagement.BusinessLayer
         /// <c>true</c> if this instance [can rent books] the specified book publications; otherwise, <c>false</c>.</returns>
         public bool CanRentBooks(List<BookPublication> bookPublications, Reader reader)
         {
-            if (bookPublications == null || reader == null || bookPublications.Count == 0)
+            if (bookPublications == null || bookPublications.Count == 0)
             {
-                Logger.LogError("BookPublications or Reader is null", MethodBase.GetCurrentMethod());
+                Logger.LogError("BookPublications is null or empty", MethodBase.GetCurrentMethod());
                 return false;
             }
 
-            if (!this.CheckNumberOfBooksInPeriod(bookPublications, reader))
+            if (!this.ValidateReader(reader))
+            {
+                Logger.LogError("Reader is not valid", MethodBase.GetCurrentMethod());
+                return false;
+            }
+
+            var isLibrarian = this.IsLibrarianRegisteredAsReader(reader);
+            foreach (var bookPublication in bookPublications)
+            {
+                if (!this.BookPublicationService.ValidateBookPublication(bookPublication))
+                {
+                    Logger.LogError("One of the books are invalid", MethodBase.GetCurrentMethod());
+                    return false;
+                }
+            }
+
+            foreach (var bookPublication in bookPublications)
+            {
+                if (!this.BookPublicationService.CanRentBookStockAmount(bookPublication))
+                {
+                    Logger.LogError("Can't rent all books", MethodBase.GetCurrentMethod());
+                    return false;
+                }
+            }
+
+            if (!this.CheckNumberOfBooksInPeriod(bookPublications, reader, isLibrarian))
             {
                 Logger.LogError("The number of books on the given period is too great", MethodBase.GetCurrentMethod());
                 return false;
             }
 
-            if (!this.CheckNumberOfBooks(bookPublications))
+            if (!this.CheckNumberOfBooks(bookPublications, isLibrarian))
             {
                 Logger.LogError("The number of distinctive categories is invalid", MethodBase.GetCurrentMethod());
                 return false;
             }
 
-            if (!this.CheckNumberOfFieldsInLastGivenMonths(bookPublications, reader))
+            if (!this.CheckNumberOfFieldsInLastGivenMonths(bookPublications, reader, isLibrarian))
             {
                 Logger.LogError("The number of categories of the rented books is invalid", MethodBase.GetCurrentMethod());
                 return false;
             }
 
-            if (!this.CheckSameBookRentedDelta(bookPublications, reader))
+            if (!this.CheckSameBookRentedDelta(bookPublications, reader, isLibrarian))
             {
                 Logger.LogError("One of the books has been rented more", MethodBase.GetCurrentMethod());
                 return false;
             }
 
-            if (!this.CheckNumberOfBooksInOneDay(bookPublications, reader))
+            if (!this.CheckNumberOfBooksInOneDay(bookPublications, reader, isLibrarian))
             {
                 Logger.LogError("Can't rent so much books in one day", MethodBase.GetCurrentMethod());
                 return false;
@@ -122,12 +167,29 @@ namespace LibraryManagement.BusinessLayer
             return true;
         }
 
-        public bool CheckNumberOfBooksInOneDay(List<BookPublication> bookPublications, Reader reader)
+        /// <summary>Determines whether [is librarian registered as reader] [the specified reader].</summary>
+        /// <param name="reader">The reader.</param>
+        /// <returns>
+        /// <c>true</c> if [is librarian registered as reader] [the specified reader]; otherwise, <c>false</c>.</returns>
+        public bool IsLibrarianRegisteredAsReader(Reader reader)
         {
-            var ncz = int.Parse(ConfigurationManager.AppSettings["NCZ"]);
+            return ReaderRepository.IsLibrarian(reader);
+        }
+
+        /// <summary>Checks the number of books in one day.</summary>
+        /// <param name="bookPublications">The book publications.</param>
+        /// <param name="reader">The reader.</param>
+        /// <param name="isLibrarian">if set to <c>true</c> [is librarian].</param>
+        /// <returns>
+        ///   <br />
+        /// </returns>
+        public bool CheckNumberOfBooksInOneDay(List<BookPublication> bookPublications, Reader reader, bool isLibrarian = false)
+        {
+            var paramName = isLibrarian ? "PERSIMP" : "NCZ";
+            var bookLimitationInOneDay = int.Parse(ConfigurationManager.AppSettings[paramName]);
 
             var bookPublicationsInPeriodRented = this.GetBookPublicationsInPeriod(reader, 1).Select(b => b.Book).ToList();
-            if (bookPublicationsInPeriodRented.Count + bookPublications.Count > ncz)
+            if (bookPublicationsInPeriodRented.Count + bookPublications.Count > bookLimitationInOneDay)
             {
                 return false;
             }
@@ -135,9 +197,21 @@ namespace LibraryManagement.BusinessLayer
             return true;
         }
 
-        public bool CheckSameBookRentedDelta(List<BookPublication> bookPublications, Reader reader)
+        /// <summary>Checks the same book rented delta.</summary>
+        /// <param name="bookPublications">The book publications.</param>
+        /// <param name="reader">The reader.</param>
+        /// <param name="isLibrarian">if set to <c>true</c> [is librarian].</param>
+        /// <returns>
+        ///   <br />
+        /// </returns>
+        public bool CheckSameBookRentedDelta(List<BookPublication> bookPublications, Reader reader, bool isLibrarian = false)
         {
             var delta = int.Parse(ConfigurationManager.AppSettings["DELTA"]);
+
+            if (isLibrarian)
+            {
+                delta /= 2;
+            }
 
             var bookPublicationsInPeriodRented = this.GetBookPublicationsInPeriod(reader, delta).Select(b => b.Book).Distinct().ToList();
 
@@ -155,13 +229,19 @@ namespace LibraryManagement.BusinessLayer
         /// <summary>Checks the number of fields in last given months.</summary>
         /// <param name="bookPublications">The book publications.</param>
         /// <param name="reader">The reader.</param>
+        /// <param name="isLibrarian">if set to <c>true</c> [is librarian].</param>
         /// <returns>
         ///   <br />
         /// </returns>
-        public bool CheckNumberOfFieldsInLastGivenMonths(List<BookPublication> bookPublications, Reader reader)
+        public bool CheckNumberOfFieldsInLastGivenMonths(List<BookPublication> bookPublications, Reader reader, bool isLibrarian = false)
         {
             var d = int.Parse(ConfigurationManager.AppSettings["D"]);
             var l = int.Parse(ConfigurationManager.AppSettings["L"]);
+
+            if (isLibrarian)
+            {
+                d *= 2;
+            }
 
             var books = bookPublications.Select(bookPublication => bookPublication.Book).ToList();
             var bookPublicationsInPeriod = this.GetBookPublicationsInPeriod(reader, l * 30).Select(b => b.Book).ToList();
@@ -199,12 +279,19 @@ namespace LibraryManagement.BusinessLayer
 
         /// <summary>Checks the number of books.</summary>
         /// <param name="bookPublications">The book publications.</param>
+        /// <param name="isLibrarian">if set to <c>true</c> [is librarian].</param>
         /// <returns>
         ///   <br />
         /// </returns>
-        public bool CheckNumberOfBooks(List<BookPublication> bookPublications)
+        public bool CheckNumberOfBooks(List<BookPublication> bookPublications, bool isLibrarian = false)
         {
             var c = int.Parse(ConfigurationManager.AppSettings["C"]);
+
+            if (isLibrarian)
+            {
+                c *= 2;
+            }
+
             if (bookPublications.Count > c)
             {
                 return false;
@@ -268,13 +355,20 @@ namespace LibraryManagement.BusinessLayer
         /// <summary>Checks the number of books in period.</summary>
         /// <param name="bookPublications">The book publications.</param>
         /// <param name="reader">The reader.</param>
+        /// <param name="isLibrarian">if set to <c>true</c> [is librarian].</param>
         /// <returns>
         ///   <br />
         /// </returns>
-        public bool CheckNumberOfBooksInPeriod(List<BookPublication> bookPublications, Reader reader)
+        public bool CheckNumberOfBooksInPeriod(List<BookPublication> bookPublications, Reader reader, bool isLibrarian = false)
         {
             var nmc = int.Parse(ConfigurationManager.AppSettings["NMC"]);
             var per = int.Parse(ConfigurationManager.AppSettings["PER"]);
+
+            if (isLibrarian)
+            {
+                nmc *= 2;
+                per /= 2;
+            }
 
             var bookPublicationsRentedInPeriod = this.GetBookPublicationsInPeriod(reader, per);
             var numberOfBooksRentedInPeriod = bookPublicationsRentedInPeriod.Count;
@@ -318,34 +412,40 @@ namespace LibraryManagement.BusinessLayer
 
         /// <summary>Adds the extension.</summary>
         /// <param name="reader">The reader.</param>
-        /// <param name="bookWithdrawal">The book withdrawal.</param>
-        /// <param name="dateWasMade">The date was made.</param>
-        /// <param name="dateToReturn">The date to return.</param>
+        /// <param name="extension">The extension.</param>
         /// <returns>
         ///   <br />
         /// </returns>
-        public bool AddExtension(Reader reader, BookWithdrawal bookWithdrawal, DateTime dateWasMade, DateTime dateToReturn)
+        public bool AddExtension(Reader reader, Extension extension)
         {
-            if (reader == null || bookWithdrawal == null)
+            var isLibrarian = this.IsLibrarianRegisteredAsReader(reader);
+            if (reader == null || extension == null)
             {
-                Logger.LogError("BookWithdrawal or Reader is null", MethodBase.GetCurrentMethod());
+                Logger.LogError("Extension or Reader is null", MethodBase.GetCurrentMethod());
                 return false;
             }
 
-            if (dateWasMade > dateToReturn)
+            var ruleSets = new string[] { "ExtensionFieldNotNull", string.Empty };
+
+            foreach (var ruleSet in ruleSets)
             {
-                Logger.LogError("DateWasMade bigger than dateToReturn", MethodBase.GetCurrentMethod());
-                return false;
+                var results = ValidationUtil.ValidateEntity(ruleSet, extension);
+                if (!results.IsValid)
+                {
+                    foreach (var result in results)
+                    {
+                        Logger.LogError(result.Message, MethodBase.GetCurrentMethod());
+                    }
+
+                    return false;
+                }
             }
 
-            if (!this.CanAddExtension(reader, dateWasMade))
+            if (!this.CanAddExtension(reader, extension.DateExtensionWasMade, isLibrarian))
             {
                 Logger.LogError("Can't add extension", MethodBase.GetCurrentMethod());
                 return false;
             }
-
-            var extension = new Extension { BookWithdrawal = bookWithdrawal, DateExtensionWasMade = dateWasMade, DateToReturn = dateToReturn };
-            bookWithdrawal.Extensions.Add(extension);
 
             return true;
         }
@@ -353,11 +453,17 @@ namespace LibraryManagement.BusinessLayer
         /// <summary>Determines whether this instance [can add extension] the specified reader.</summary>
         /// <param name="reader">The reader.</param>
         /// <param name="date">The date.</param>
+        /// <param name="isLibrarian">if set to <c>true</c> [is librarian].</param>
         /// <returns>
         /// <c>true</c> if this instance [can add extension] the specified reader; otherwise, <c>false</c>.</returns>
-        private bool CanAddExtension(Reader reader, DateTime date)
+        private bool CanAddExtension(Reader reader, DateTime date, bool isLibrarian = false)
         {
             var lim = int.Parse(ConfigurationManager.AppSettings["LIM"]);
+
+            if (isLibrarian)
+            {
+                lim *= 2;
+            }
 
             var allExtension = reader.BookWithdrawals.SelectMany(b => b.Extensions).ToList();
             var extensionWithin90Days = allExtension.Count(ext => (date - ext.DateExtensionWasMade).TotalDays < 90);

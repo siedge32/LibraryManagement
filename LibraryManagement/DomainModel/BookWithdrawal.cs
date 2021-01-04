@@ -3,10 +3,10 @@
 // </copyright>
 namespace LibraryManagement.DomainModel
 {
-    using Microsoft.Practices.EnterpriseLibrary.Validation;
-    using Microsoft.Practices.EnterpriseLibrary.Validation.Validators;
     using System;
     using System.Collections.Generic;
+    using Microsoft.Practices.EnterpriseLibrary.Validation;
+    using Microsoft.Practices.EnterpriseLibrary.Validation.Validators;
 
     /// <summary>
     /// The BookWithdrawal class

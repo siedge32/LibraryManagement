@@ -46,13 +46,29 @@ namespace LibraryManagement.BusinessLayer
         /// <returns>Returns true if create, false else</returns>
         public bool CreateBookPublication(BookPublication bookPublication)
         {
+            var isBookValid = this.ValidateBookPublication(bookPublication);
+            if (isBookValid)
+            {
+                BookPublicationRepository.Create(bookPublication);
+            }
+
+            return isBookValid;
+        }
+
+        /// <summary>Validates the book publication.</summary>
+        /// <param name="bookPublication">The book publication.</param>
+        /// <returns>
+        ///   <br />
+        /// </returns>
+        public bool ValidateBookPublication(BookPublication bookPublication)
+        {
             if (bookPublication == null)
             {
                 Logger.LogError("BookPublication is null", MethodBase.GetCurrentMethod());
                 return false;
             }
 
-            var ruleSets = new string[] { "BookPublicationNumberOfPagesFieldRange", "BookPublicationFieldNotNull", "BookPublicationCoverStringLength", string.Empty };
+            var ruleSets = new string[] { "BookPublicationNumberOfPagesFieldRange", "BookPublicationFieldNotNull", "BookPublicationCoverStringLength", "BookPublicationNameRegex", string.Empty };
             foreach (var ruleSet in ruleSets)
             {
                 var results = ValidationUtil.ValidateEntity(ruleSet, bookPublication);
@@ -67,7 +83,6 @@ namespace LibraryManagement.BusinessLayer
                 }
             }
 
-            BookPublicationRepository.Create(bookPublication);
             return true;
         }
 
@@ -81,6 +96,21 @@ namespace LibraryManagement.BusinessLayer
         public bool CanRentBookStockAmount(BookPublication bookPublication)
         {
             var bookStock = bookPublication.BookStock;
+            var ruleSets = new string[] { "BookStockRangeValidator", "BookStockFieldNotNull", string.Empty };
+            foreach (var ruleSet in ruleSets)
+            {
+                var results = ValidationUtil.ValidateEntity(ruleSet, bookStock);
+                if (!results.IsValid)
+                {
+                    foreach (var result in results)
+                    {
+                        Logger.LogError(result.Message, MethodBase.GetCurrentMethod());
+                    }
+
+                    return false;
+                }
+            }
+
             if (bookStock.NumberOfBooks == bookStock.NumberOfBooksForLecture)
             {
                 return false;

@@ -27,7 +27,6 @@ namespace LibraryManagement.DomainModel
         /// <value>
         /// The date to return.
         /// </value>
-        [NotNullValidator(MessageTemplate = "The DateToReturn cannot be null", Ruleset = "ExtensionFieldNotNull")]
         public DateTime DateToReturn { get; set; }
 
         /// <summary>
@@ -36,7 +35,6 @@ namespace LibraryManagement.DomainModel
         /// <value>
         /// The date to return.
         /// </value>
-        [NotNullValidator(MessageTemplate = "The DateExtensionWasMade cannot be null", Ruleset = "ExtensionFieldNotNull")]
         public DateTime DateExtensionWasMade { get; set; }
 
         /// <summary>
@@ -45,6 +43,7 @@ namespace LibraryManagement.DomainModel
         /// <value>
         /// The book withdrawal.
         /// </value>
+        [NotNullValidator(MessageTemplate = "The DateToReturn cannot be null", Ruleset = "ExtensionFieldNotNull")]
         public BookWithdrawal BookWithdrawal { get; set; }
 
         /// <summary>

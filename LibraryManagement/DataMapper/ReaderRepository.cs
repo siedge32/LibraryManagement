@@ -3,6 +3,7 @@
 // </copyright>
 namespace LibraryManagement.DataMapper
 {
+    using System.Linq;
     using LibraryManagement.DomainModel;
 
     /// <summary>
@@ -17,6 +18,20 @@ namespace LibraryManagement.DataMapper
         /// <param name="libraryDbContext">The library database context.</param>
         public ReaderRepository(LibraryDbContext libraryDbContext) : base(libraryDbContext)
         {
+        }
+
+        /// <summary>Determines whether the specified reader is librarian.</summary>
+        /// <param name="reader">The reader.</param>
+        /// <returns>
+        /// <c>true</c> if the specified reader is librarian; otherwise, <c>false</c>.</returns>
+        public bool IsLibrarian(Reader reader)
+        {
+            if (LibraryDbContext.Librarians == null)
+            {
+                return false;
+            }
+
+            return LibraryDbContext.Librarians.FirstOrDefault(l => l.Email.Equals(reader.Email)) != null;
         }
     }
 }

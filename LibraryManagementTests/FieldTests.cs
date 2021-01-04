@@ -1,37 +1,65 @@
-﻿using LibraryManagement.BusinessLayer;
-using LibraryManagement.DataMapper;
-using LibraryManagement.DomainModel;
-using Moq;
-using NUnit.Framework;
-using System.Data.Entity;
-
+﻿// <copyright file="FieldTests.cs" company="Transilvania University of Brasov">
+// Hanganu Bogdan
+// </copyright>
 namespace LibraryManagementTests
 {
+    using System.Data.Entity;
+    using LibraryManagement.BusinessLayer;
+    using LibraryManagement.DataMapper;
+    using LibraryManagement.DomainModel;
+    using Moq;
+    using NUnit.Framework;
+
+    /// <summary>
+    /// The field tests
+    /// </summary>
     [TestFixture]
     public class FieldTests
     {
+        /// <summary>
+        /// Gets the library context mock.
+        /// </summary>
+        /// <value>
+        /// The library context mock.
+        /// </value>
         public Mock<LibraryDbContext> LibraryContextMock { get; private set; }
+
+        /// <summary>
+        /// Gets the field service.
+        /// </summary>
+        /// <value>
+        /// The field service.
+        /// </value>
         public FieldService FieldService { get; private set; }
 
+        /// <summary>
+        /// Sets up.
+        /// </summary>
         [SetUp]
         public void SetUp()
         {
             var mockSet = new Mock<DbSet<Field>>();
-            LibraryContextMock = new Mock<LibraryDbContext>();
-            LibraryContextMock.Setup(m => m.Set<Field>()).Returns(mockSet.Object);
-            FieldService = new FieldService(new FieldRepository(LibraryContextMock.Object));
+            this.LibraryContextMock = new Mock<LibraryDbContext>();
+            this.LibraryContextMock.Setup(m => m.Set<Field>()).Returns(mockSet.Object);
+            this.FieldService = new FieldService(new FieldRepository(this.LibraryContextMock.Object));
         }
 
+        /// <summary>
+        /// Adds the null field.
+        /// </summary>
         [Test]
         public void AddNullField()
         {
             Field field = null;
 
-            var wasCreated = FieldService.AddField(field);
+            var wasCreated = this.FieldService.AddField(field);
             Assert.False(wasCreated);
-            LibraryContextMock.Verify(f => f.SaveChanges(), Times.Never());
+            this.LibraryContextMock.Verify(f => f.SaveChanges(), Times.Never());
         }
 
+        /// <summary>
+        /// Adds the name of the null.
+        /// </summary>
         [Test]
         public void AddNullName()
         {
@@ -42,22 +70,28 @@ namespace LibraryManagementTests
 
             var wasCreated = FieldService.AddField(field);
             Assert.False(wasCreated);
-            LibraryContextMock.Verify(f => f.SaveChanges(), Times.Never());
+            this.LibraryContextMock.Verify(f => f.SaveChanges(), Times.Never());
         }
 
+        /// <summary>
+        /// Tests the add invalid length name0.
+        /// </summary>
         [Test]
         public void TestAddInvalidLengthName0()
         {
             var field = new Field
             {
-                Name = ""
+                Name = string.Empty
             };
 
             var wasCreated = FieldService.AddField(field);
             Assert.False(wasCreated);
-            LibraryContextMock.Verify(f => f.SaveChanges(), Times.Never());
+            this.LibraryContextMock.Verify(f => f.SaveChanges(), Times.Never());
         }
 
+        /// <summary>
+        /// Tests the add invalid length name1.
+        /// </summary>
         [Test]
         public void TestAddInvalidLengthName1()
         {
@@ -68,9 +102,12 @@ namespace LibraryManagementTests
 
             var wasCreated = FieldService.AddField(field);
             Assert.False(wasCreated);
-            LibraryContextMock.Verify(f => f.SaveChanges(), Times.Never());
+            this.LibraryContextMock.Verify(f => f.SaveChanges(), Times.Never());
         }
 
+        /// <summary>
+        /// Tests the add invalid length name2.
+        /// </summary>
         [Test]
         public void TestAddInvalidLengthName2()
         {
@@ -81,9 +118,12 @@ namespace LibraryManagementTests
 
             var wasCreated = FieldService.AddField(field);
             Assert.False(wasCreated);
-            LibraryContextMock.Verify(f => f.SaveChanges(), Times.Never());
+            this.LibraryContextMock.Verify(f => f.SaveChanges(), Times.Never());
         }
 
+        /// <summary>
+        /// Tests the check field inheritance null field.
+        /// </summary>
         [Test]
         public void TestCheckFieldInheritanceNullField()
         {
@@ -98,6 +138,9 @@ namespace LibraryManagementTests
             Assert.False(areRelated);
         }
 
+        /// <summary>
+        /// Tests the check field inheritance not related.
+        /// </summary>
         [Test]
         public void TestCheckFieldInheritanceNotRelated()
         {
@@ -115,6 +158,9 @@ namespace LibraryManagementTests
             Assert.False(areRelated);
         }
 
+        /// <summary>
+        /// Tests the check field inheritance first grade related.
+        /// </summary>
         [Test]
         public void TestCheckFieldInheritanceFirstGradeRelated()
         {
@@ -133,6 +179,9 @@ namespace LibraryManagementTests
             Assert.True(areRelated);
         }
 
+        /// <summary>
+        /// Tests the check field inheritance second grade related.
+        /// </summary>
         [Test]
         public void TestCheckFieldInheritanceSecondGradeRelated()
         {
@@ -157,6 +206,9 @@ namespace LibraryManagementTests
             Assert.True(areRelated);
         }
 
+        /// <summary>
+        /// Tests the add field valid.
+        /// </summary>
         [Test]
         public void TestAddFieldValid()
         {
@@ -167,7 +219,7 @@ namespace LibraryManagementTests
 
             var wasCreated = FieldService.AddField(field);
             Assert.True(wasCreated);
-            LibraryContextMock.Verify(f => f.SaveChanges(), Times.Once());
+            this.LibraryContextMock.Verify(f => f.SaveChanges(), Times.Once());
         }
     }
 }

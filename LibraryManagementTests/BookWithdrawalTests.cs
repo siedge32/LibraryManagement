@@ -1,17 +1,38 @@
-﻿using LibraryManagement.DomainModel;
-using LibraryManagement.Utils;
-using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿// <copyright file="BookWithdrawalTests.cs" company="Transilvania University of Brasov">
+// Hanganu Bogdan
+// </copyright>
 namespace LibraryManagementTests
 {
+    using System;
+    using System.Collections.Generic;
+    using LibraryManagement.DomainModel;
+    using LibraryManagement.Utils;
+    using NUnit.Framework;
+
+    /// <summary>
+    /// The BookWithdrawalTests class
+    /// </summary>
     [TestFixture]
     public class BookWithdrawalTests
     {
+        /// <summary>
+        /// The book withdrawal
+        /// </summary>
+        private BookWithdrawal bookWithdrawal;
+
+        /// <summary>
+        /// The reader
+        /// </summary>
+        private Reader reader;
+
+        /// <summary>
+        /// The librarian
+        /// </summary>
+        private Librarian librarian;
+
+        /// <summary>
+        /// Sets up.
+        /// </summary>
         [SetUp]
         public void SetUp()
         {
@@ -41,12 +62,12 @@ namespace LibraryManagementTests
                 Id = 1,
                 Book = book,
                 BookStock = bookStock,
-                BookWithdrawals = new List<BookWithdrawal> { bookWithdrawal },
+                BookWithdrawals = new List<BookWithdrawal> { this.bookWithdrawal },
                 CoverMaterial = "Carton",
                 NumberOfPages = 30
             };
 
-            reader = new Reader
+            this.reader = new Reader
             {
                 Id = 1,
                 LastName = "Hanganu",
@@ -57,7 +78,7 @@ namespace LibraryManagementTests
                 Gender = "M"
             };
 
-            librarian = new Librarian
+            this.librarian = new Librarian
             {
                 Id = 1,
                 LastName = "Matei",
@@ -68,72 +89,82 @@ namespace LibraryManagementTests
                 Gender = "M"
             };
 
-            bookWithdrawal = new BookWithdrawal
+            this.bookWithdrawal = new BookWithdrawal
             {
                 Id = 1,
                 DateRented = new DateTime(2020, 1, 1),
                 DateToReturn = new DateTime(2020, 1, 15),
                 BookPublications = new List<BookPublication> { bookPublication },
                 Extensions = new List<Extension>(),
-                Librarian = librarian,
-                Reader = reader
+                Librarian = this.librarian,
+                Reader = this.reader
             };
-
         }
 
-        private BookWithdrawal bookWithdrawal;
-
-        private Reader reader;
-
-        private Librarian librarian;
-
-
+        /// <summary>
+        /// Tests the book withdrawal null reader.
+        /// </summary>
         [Test]
         public void TestBookWithdrawalNullReader()
         {
-            bookWithdrawal.Reader = null;
+            this.bookWithdrawal.Reader = null;
             var ruleSet = "BookWithdrawalFieldNotNull";
-            var result = ValidationUtil.ValidateEntity(ruleSet, bookWithdrawal);
+            var result = ValidationUtil.ValidateEntity(ruleSet, this.bookWithdrawal);
             Assert.IsFalse(result.IsValid);
         }
 
+        /// <summary>
+        /// Tests the book withdrawal null librarian.
+        /// </summary>
         [Test]
         public void TestBookWithdrawalNullLibrarian()
         {
-            bookWithdrawal.Librarian = null;
+            this.bookWithdrawal.Librarian = null;
             var ruleSet = "BookWithdrawalFieldNotNull";
-            var result = ValidationUtil.ValidateEntity(ruleSet, bookWithdrawal);
+            var result = ValidationUtil.ValidateEntity(ruleSet, this.bookWithdrawal);
             Assert.IsFalse(result.IsValid);
         }
 
+        /// <summary>
+        /// Tests the book withdrawal null book publications.
+        /// </summary>
         [Test]
         public void TestBookWithdrawalNullBookPublications()
         {
-            bookWithdrawal.BookPublications = null;
+            this.bookWithdrawal.BookPublications = null;
             var ruleSet = string.Empty;
-            var result = ValidationUtil.ValidateEntity(ruleSet, bookWithdrawal);
+            var result = ValidationUtil.ValidateEntity(ruleSet, this.bookWithdrawal);
             Assert.IsFalse(result.IsValid);
         }
 
+        /// <summary>
+        /// Tests the book withdrawal empty book publications.
+        /// </summary>
         [Test]
         public void TestBookWithdrawalEmptyBookPublications()
         {
-            bookWithdrawal.BookPublications = new List<BookPublication>();
+            this.bookWithdrawal.BookPublications = new List<BookPublication>();
             var ruleSet = string.Empty;
-            var result = ValidationUtil.ValidateEntity(ruleSet, bookWithdrawal);
+            var result = ValidationUtil.ValidateEntity(ruleSet, this.bookWithdrawal);
             Assert.IsFalse(result.IsValid);
         }
 
+        /// <summary>
+        /// Tests the book withdrawal future date rented.
+        /// </summary>
         [Test]
         public void TestBookWithdrawalFutureDateRented()
         {
-            bookWithdrawal.DateRented = new DateTime(2020, 2, 1);
-            bookWithdrawal.DateToReturn = new DateTime(2020, 1, 1);
+            this.bookWithdrawal.DateRented = new DateTime(2020, 2, 1);
+            this.bookWithdrawal.DateToReturn = new DateTime(2020, 1, 1);
             var ruleSet = string.Empty;
-            var result = ValidationUtil.ValidateEntity(ruleSet, bookWithdrawal);
+            var result = ValidationUtil.ValidateEntity(ruleSet, this.bookWithdrawal);
             Assert.IsFalse(result.IsValid);
         }
 
+        /// <summary>
+        /// Tests the book withdrawal valid.
+        /// </summary>
         [Test]
         public void TestBookWithdrawalValid()
         {
@@ -141,7 +172,7 @@ namespace LibraryManagementTests
             var isValid = true;
             foreach (var ruleSet in ruleSets)
             {
-                var results = ValidationUtil.ValidateEntity(ruleSet, bookWithdrawal);
+                var results = ValidationUtil.ValidateEntity(ruleSet, this.bookWithdrawal);
                 if (!results.IsValid)
                 {
                     isValid = false;
@@ -150,6 +181,28 @@ namespace LibraryManagementTests
             }
 
             Assert.IsTrue(isValid);
+        }
+
+        /// <summary>
+        /// Tests the book withdrawal null.
+        /// </summary>
+        [Test]
+        public void TestBookWithdrawalNull()
+        {
+            this.bookWithdrawal = null;
+            var ruleSets = new string[] { "BookWithdrawalFieldNotNull", string.Empty };
+            var isValid = true;
+            foreach (var ruleSet in ruleSets)
+            {
+                var results = ValidationUtil.ValidateEntity(ruleSet, this.bookWithdrawal);
+                if (!results.IsValid)
+                {
+                    isValid = false;
+                    break;
+                }
+            }
+
+            Assert.IsFalse(isValid);
         }
     }
 }

@@ -27,7 +27,7 @@ namespace LibraryManagement.DomainModel
         /// </value>
         [NotNullValidator(MessageTemplate = "The FirstName cannot be null", Ruleset = "AuthorFieldNotNull")]
         [StringLengthValidator(2, RangeBoundaryType.Inclusive, 40, RangeBoundaryType.Inclusive, ErrorMessage = "The FirstName should have between {3} and {5} letters", Ruleset = "AuthorNameStringLength")]
-        [RegexValidator(@"^[a-zA-Z]+$", MessageTemplate = "Only characters", Ruleset = "AuthorNameRegex")]
+        [RegexValidator(@"^[a-zA-Z -]+$", MessageTemplate = "Only characters, empty space and -", Ruleset = "AuthorNameRegex")]
         [RegexValidator(@"^[A-Z]", MessageTemplate = "Start with capital letter", Ruleset = "AuthorNameRegex")]
         public string FirstName { get; set; }
 
@@ -39,7 +39,7 @@ namespace LibraryManagement.DomainModel
         /// </value>
         [NotNullValidator(MessageTemplate = "The SecondName cannot be null", Ruleset = "AuthorFieldNotNull")]
         [StringLengthValidator(2, RangeBoundaryType.Inclusive, 40, RangeBoundaryType.Inclusive, ErrorMessage = "The LastName should have between {3} and {5} letters", Ruleset = "AuthorNameStringLength")]
-        [RegexValidator(@"^[a-zA-Z]+$", MessageTemplate = "Only characters", Ruleset = "AuthorNameRegex")]
+        [RegexValidator(@"^[a-zA-Z -]+$", MessageTemplate = "Only characters", Ruleset = "AuthorNameRegex")]
         [RegexValidator(@"^[A-Z]", MessageTemplate = "Start with capital letter", Ruleset = "AuthorNameRegex")]
         public string LastName { get; set; }
 
@@ -51,6 +51,7 @@ namespace LibraryManagement.DomainModel
         /// </value>
         [NotNullValidator(MessageTemplate = "The Adress cannot be null", Ruleset = "AuthorFieldNotNull")]
         [StringLengthValidator(2, RangeBoundaryType.Inclusive, 100, RangeBoundaryType.Inclusive, ErrorMessage = "The LastName should have between {3} and {5} letters", Ruleset = "AuthorNameStringLength")]
+        [RegexValidator(@"^[a-zA-Z0-9 .-]+$", MessageTemplate = "Only letters, numbers and -", Ruleset = "AuthorNameRegex")]
         public string Adress { get; set; }
 
         /// <summary>

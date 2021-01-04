@@ -31,7 +31,7 @@ namespace LibraryManagement.DomainModel
         /// </value>
         [NotNullValidator(MessageTemplate = "The FirstName cannot be null", Ruleset = "ReaderFieldNotNull")]
         [StringLengthValidator(2, RangeBoundaryType.Inclusive, 40, RangeBoundaryType.Inclusive, ErrorMessage = "The FirstName should have between {3} and {5} letters", Ruleset = "ReaderNameStringLength")]
-        [RegexValidator(@"^[a-zA-Z]+$", MessageTemplate = "Only characters", Ruleset = "ReaderNameRegex")]
+        [RegexValidator(@"^[a-zA-Z -]+$", MessageTemplate = "Only characters", Ruleset = "ReaderNameRegex")]
         [RegexValidator(@"^[A-Z]", MessageTemplate = "Start with capital letter", Ruleset = "ReaderNameRegex")]
         public string FirstName { get; set; }
 
@@ -43,7 +43,7 @@ namespace LibraryManagement.DomainModel
         /// </value>
         [NotNullValidator(MessageTemplate = "The LastName cannot be null", Ruleset = "ReaderFieldNotNull")]
         [StringLengthValidator(2, RangeBoundaryType.Inclusive, 40, RangeBoundaryType.Inclusive, ErrorMessage = "The LastName should have between {3} and {5} letters", Ruleset = "ReaderNameStringLength")]
-        [RegexValidator(@"^[a-zA-Z]+$", MessageTemplate = "Only characters", Ruleset = "ReaderNameRegex")]
+        [RegexValidator(@"^[a-zA-Z -]+$", MessageTemplate = "Only characters", Ruleset = "ReaderNameRegex")]
         [RegexValidator(@"^[A-Z]", MessageTemplate = "Start with capital letter", Ruleset = "ReaderNameRegex")]
         public string LastName { get; set; }
 
@@ -55,6 +55,7 @@ namespace LibraryManagement.DomainModel
         /// </value>
         [NotNullValidator(MessageTemplate = "The Address cannot be null", Ruleset = "ReaderFieldNotNull")]
         [StringLengthValidator(2, RangeBoundaryType.Inclusive, 100, RangeBoundaryType.Inclusive, ErrorMessage = "The Adress should have between {3} and {5} letters", Ruleset = "ReaderNameStringLength")]
+        [RegexValidator(@"^[a-zA-Z0-9 .-]+$", MessageTemplate = "Only letters, numbers and -", Ruleset = "ReaderNameRegex")]
         public string Address { get; set; }
 
         /// <summary>
@@ -64,7 +65,7 @@ namespace LibraryManagement.DomainModel
         /// The phone.
         /// </value>
         [NotNullValidator(MessageTemplate = "The PhoneNumber cannot be null", Ruleset = "ReaderFieldNotNull")]
-        [RegexValidator(@"^[0-9]+$", MessageTemplate = "Invalid Romanian PhoneNumber", Ruleset = "ReaderNameRegex")]
+        [RegexValidator(@"^[0-9]+$", MessageTemplate = "Invalid PhoneNumber", Ruleset = "ReaderNameRegex")]
         public string Phone { get; set; }
 
         /// <summary>

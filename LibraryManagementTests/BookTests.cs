@@ -1,41 +1,66 @@
-﻿using LibraryManagement.BusinessLayer;
-using LibraryManagement.DataMapper;
-using LibraryManagement.DomainModel;
-using Moq;
-using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Data.Entity;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿// <copyright file="BookTests.cs" company="Transilvania University of Brasov">
+// Hanganu Bogdan
+// </copyright>
 namespace LibraryManagementTests
 {
+    using System.Collections.Generic;
+    using System.Data.Entity;
+    using System.Linq;
+    using LibraryManagement.BusinessLayer;
+    using LibraryManagement.DataMapper;
+    using LibraryManagement.DomainModel;
+    using Moq;
+    using NUnit.Framework;
+
+    /// <summary>
+    /// The BookTests class
+    /// </summary>
     [TestFixture]
     public class BookTests
     {
+        /// <summary>
+        /// Gets or sets the book service.
+        /// </summary>
+        /// <value>
+        /// The book service.
+        /// </value>
         private BookService BookService { get; set; }
+
+        /// <summary>
+        /// Gets or sets the library context mock.
+        /// </summary>
+        /// <value>
+        /// The library context mock.
+        /// </value>
         private Mock<LibraryDbContext> LibraryContextMock { get; set; }
 
+        /// <summary>
+        /// Sets up.
+        /// </summary>
         [SetUp]
         public void SetUp()
         {
             var mockSet = new Mock<DbSet<Book>>();
-            LibraryContextMock = new Mock<LibraryDbContext>();
-            LibraryContextMock.Setup(m => m.Set<Book>()).Returns(mockSet.Object);
-            BookService = new BookService(new BookRepository(LibraryContextMock.Object));
+            this.LibraryContextMock = new Mock<LibraryDbContext>();
+            this.LibraryContextMock.Setup(m => m.Set<Book>()).Returns(mockSet.Object);
+            BookService = new BookService(new BookRepository(this.LibraryContextMock.Object));
         }
 
+        /// <summary>
+        /// Tests the add null book.
+        /// </summary>
         [Test]
         public void TestAddNullBook()
         {
             Book nullBook = null;
             var wasCreated = BookService.CreateBook(nullBook);
             Assert.False(wasCreated);
-            LibraryContextMock.Verify(b => b.SaveChanges(), Times.Never());
+            this.LibraryContextMock.Verify(b => b.SaveChanges(), Times.Never());
         }
 
+        /// <summary>
+        /// Tests the name of the add null.
+        /// </summary>
         [Test]
         public void TestAddNullName()
         {
@@ -46,22 +71,28 @@ namespace LibraryManagementTests
 
             var wasCreated = BookService.CreateBook(book);
             Assert.False(wasCreated);
-            LibraryContextMock.Verify(b => b.SaveChanges(), Times.Never());
+            this.LibraryContextMock.Verify(b => b.SaveChanges(), Times.Never());
         }
 
+        /// <summary>
+        /// Tests the add invalid length name0.
+        /// </summary>
         [Test]
         public void TestAddInvalidLengthName0()
         {
             var book = new Book
             {
-                Name = ""
+                Name = string.Empty
             };
 
             var wasCreated = BookService.CreateBook(book);
             Assert.False(wasCreated);
-            LibraryContextMock.Verify(b => b.SaveChanges(), Times.Never());
+            this.LibraryContextMock.Verify(b => b.SaveChanges(), Times.Never());
         }
 
+        /// <summary>
+        /// Tests the add invalid length name1.
+        /// </summary>
         [Test]
         public void TestAddInvalidLengthName1()
         {
@@ -72,9 +103,12 @@ namespace LibraryManagementTests
 
             var wasCreated = BookService.CreateBook(book);
             Assert.False(wasCreated);
-            LibraryContextMock.Verify(b => b.SaveChanges(), Times.Never());
+            this.LibraryContextMock.Verify(b => b.SaveChanges(), Times.Never());
         }
 
+        /// <summary>
+        /// Tests the add invalid length name2.
+        /// </summary>
         [Test]
         public void TestAddInvalidLengthName2()
         {
@@ -85,9 +119,12 @@ namespace LibraryManagementTests
 
             var wasCreated = BookService.CreateBook(book);
             Assert.False(wasCreated);
-            LibraryContextMock.Verify(b => b.SaveChanges(), Times.Never());
+            this.LibraryContextMock.Verify(b => b.SaveChanges(), Times.Never());
         }
 
+        /// <summary>
+        /// Tests the add null categories.
+        /// </summary>
         [Test]
         public void TestAddNullCategories()
         {
@@ -99,9 +136,12 @@ namespace LibraryManagementTests
 
             var wasCreated = BookService.CreateBook(book);
             Assert.False(wasCreated);
-            LibraryContextMock.Verify(b => b.SaveChanges(), Times.Never());
+            this.LibraryContextMock.Verify(b => b.SaveChanges(), Times.Never());
         }
 
+        /// <summary>
+        /// Tests the add empty categories.
+        /// </summary>
         [Test]
         public void TestAddEmptyCategories()
         {
@@ -113,9 +153,12 @@ namespace LibraryManagementTests
 
             var wasCreated = BookService.CreateBook(book);
             Assert.False(wasCreated);
-            LibraryContextMock.Verify(b => b.SaveChanges(), Times.Never());
+            this.LibraryContextMock.Verify(b => b.SaveChanges(), Times.Never());
         }
 
+        /// <summary>
+        /// Tests the add more categories than DOM.
+        /// </summary>
         [Test]
         public void TestAddMoreCategoriesThanDOM()
         {
@@ -142,9 +185,12 @@ namespace LibraryManagementTests
 
             var wasCreated = BookService.CreateBook(book);
             Assert.False(wasCreated);
-            LibraryContextMock.Verify(b => b.SaveChanges(), Times.Never());
+            this.LibraryContextMock.Verify(b => b.SaveChanges(), Times.Never());
         }
 
+        /// <summary>
+        /// Tests the add related one level inheritance.
+        /// </summary>
         [Test]
         public void TestAddRelatedOneLevelInheritance()
         {
@@ -170,15 +216,18 @@ namespace LibraryManagementTests
 
             var wasCreated = BookService.CreateBook(book);
             Assert.False(wasCreated);
-            LibraryContextMock.Verify(b => b.SaveChanges(), Times.Never());
+            this.LibraryContextMock.Verify(b => b.SaveChanges(), Times.Never());
         }
 
+        /// <summary>
+        /// Tests the add related two level inheritance.
+        /// </summary>
         [Test]
         public void TestAddRelatedTwoLevelInheritance()
         {
             var field1 = new Field { Name = "Art" };
             var field2 = new Field { Name = "Painting", ParentField = field1 };
-            var field3= new Field { Name = "Colours", ParentField = field2 };
+            var field3 = new Field { Name = "Colours", ParentField = field2 };
 
             var author = new Author
             {
@@ -199,9 +248,12 @@ namespace LibraryManagementTests
 
             var wasCreated = BookService.CreateBook(book);
             Assert.False(wasCreated);
-            LibraryContextMock.Verify(b => b.SaveChanges(), Times.Never());
+            this.LibraryContextMock.Verify(b => b.SaveChanges(), Times.Never());
         }
 
+        /// <summary>
+        /// Tests the add null authors.
+        /// </summary>
         [Test]
         public void TestAddNullAuthors()
         {
@@ -220,9 +272,12 @@ namespace LibraryManagementTests
 
             var wasCreated = BookService.CreateBook(book);
             Assert.False(wasCreated);
-            LibraryContextMock.Verify(b => b.SaveChanges(), Times.Never());
+            this.LibraryContextMock.Verify(b => b.SaveChanges(), Times.Never());
         }
 
+        /// <summary>
+        /// Tests the add empty authors.
+        /// </summary>
         [Test]
         public void TestAddEmptyAuthors()
         {
@@ -241,9 +296,12 @@ namespace LibraryManagementTests
 
             var wasCreated = BookService.CreateBook(book);
             Assert.False(wasCreated);
-            LibraryContextMock.Verify(b => b.SaveChanges(), Times.Never());
+            this.LibraryContextMock.Verify(b => b.SaveChanges(), Times.Never());
         }
 
+        /// <summary>
+        /// Tests the add multiple authors.
+        /// </summary>
         [Test]
         public void TestAddMultipleAuthors()
         {
@@ -276,9 +334,12 @@ namespace LibraryManagementTests
 
             var wasCreated = BookService.CreateBook(book);
             Assert.True(wasCreated);
-            LibraryContextMock.Verify(b => b.SaveChanges(), Times.Once());
+            this.LibraryContextMock.Verify(b => b.SaveChanges(), Times.Once());
         }
 
+        /// <summary>
+        /// Tests the add valid book.
+        /// </summary>
         [Test]
         public void TestAddValidBook()
         {
@@ -304,7 +365,8 @@ namespace LibraryManagementTests
 
             var wasCreated = BookService.CreateBook(book);
             Assert.True(wasCreated);
-            LibraryContextMock.Verify(b => b.SaveChanges(), Times.Once());
+
+            this.LibraryContextMock.Verify(b => b.SaveChanges(), Times.Once());
         }
     }
 }

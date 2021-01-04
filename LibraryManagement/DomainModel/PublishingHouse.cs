@@ -4,6 +4,7 @@
 namespace LibraryManagement.DomainModel
 {
     using System.Collections.Generic;
+    using Microsoft.Practices.EnterpriseLibrary.Validation.Validators;
 
     /// <summary>
     /// The PublishingHouse class
@@ -24,6 +25,7 @@ namespace LibraryManagement.DomainModel
         /// <value>
         /// The name.
         /// </value>
+        [NotNullValidator(MessageTemplate = "The Name cannot be null", Ruleset = "PublishingHouseFieldNotNull")]
         public string Name { get; set; }
 
         /// <summary>
@@ -32,6 +34,7 @@ namespace LibraryManagement.DomainModel
         /// <value>
         /// The address.
         /// </value>
+        [NotNullValidator(MessageTemplate = "The Adress cannot be null", Ruleset = "PublishingHouseFieldNotNull")]
         public string Adress { get; set; }
 
         /// <summary>

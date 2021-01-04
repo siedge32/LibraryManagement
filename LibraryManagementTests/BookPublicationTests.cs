@@ -1,93 +1,146 @@
-﻿using LibraryManagement.BusinessLayer;
-using LibraryManagement.DataMapper;
-using LibraryManagement.DomainModel;
-using Moq;
-using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Data.Entity;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿// <copyright file="BookPublicationTests.cs" company="Transilvania University of Brasov">
+// Hanganu Bogdan
+// </copyright>
 namespace LibraryManagementTests
 {
+    using System.Collections.Generic;
+    using System.Data.Entity;
+    using LibraryManagement.BusinessLayer;
+    using LibraryManagement.DataMapper;
+    using LibraryManagement.DomainModel;
+    using Moq;
+    using NUnit.Framework;
+
+    /// <summary>
+    /// The BookPublicationTests class
+    /// </summary>
     [TestFixture]
     public class BookPublicationTests
     {
-        private BookPublicationService BookPublicationService { get; set; }
-        private Mock<LibraryDbContext> LibraryContextMock { get; set; }
-
+        /// <summary>
+        /// The field1
+        /// </summary>
         private Field field1;
+
+        /// <summary>
+        /// The field2
+        /// </summary>
         private Field field2;
+
+        /// <summary>
+        /// The author
+        /// </summary>
         private Author author;
+
+        /// <summary>
+        /// The book
+        /// </summary>
         private Book book;
+
+        /// <summary>
+        /// The Publishing House
+        /// </summary>
         private PublishingHouse pH;
+
+        /// <summary>
+        /// The book stock
+        /// </summary>
         private BookStock bookStock;
+
+        /// <summary>
+        /// The book publication
+        /// </summary>
         private BookPublication bookpH;
 
+        /// <summary>
+        /// Gets or sets the book publication service.
+        /// </summary>
+        /// <value>
+        /// The book publication service.
+        /// </value>
+        private BookPublicationService BookPublicationService { get; set; }
+
+        /// <summary>
+        /// Gets or sets the library context mock.
+        /// </summary>
+        /// <value>
+        /// The library context mock.
+        /// </value>
+        private Mock<LibraryDbContext> LibraryContextMock { get; set; }
+
+        /// <summary>
+        /// Sets up.
+        /// </summary>
         [SetUp]
         public void SetUp()
         {
             var mockSet = new Mock<DbSet<BookPublication>>();
-            LibraryContextMock = new Mock<LibraryDbContext>();
-            LibraryContextMock.Setup(m => m.Set<BookPublication>()).Returns(mockSet.Object);
-            BookPublicationService = new BookPublicationService(new BookPublicationRepository(LibraryContextMock.Object));
+            this.LibraryContextMock = new Mock<LibraryDbContext>();
+            this.LibraryContextMock.Setup(m => m.Set<BookPublication>()).Returns(mockSet.Object);
+            this.BookPublicationService = new BookPublicationService(new BookPublicationRepository(this.LibraryContextMock.Object));
 
-            field1 = new Field { Name = "Art" };
-            field2 = new Field { Name = "Science" };
+            this.field1 = new Field { Name = "Art" };
+            this.field2 = new Field { Name = "Science" };
 
-            author = new Author
+            this.author = new Author
             {
                 FirstName = "Bogdan",
                 LastName = "Hanganu",
                 Gender = "M"
             };
 
-            book = new Book
+            this.book = new Book
             {
                 Name = "Art - Science",
                 Categories = new List<Field>
                 {
-                   field1, field2
+                   this.field1, this.field2
                 },
-                Authors = new List<Author> { author }
+                Authors = new List<Author> { this.author }
             };
 
-            pH = new PublishingHouse
+            this.pH = new PublishingHouse
             {
                 Name = "Corint"
             };
 
-            bookStock = new BookStock
+            this.bookStock = new BookStock
             {
                 NumberOfBooks = 10,
-                NumberOfBooksForLecture = 7
+                NumberOfBooksForLecture = 7,
+                BookPublication = this.bookpH
             };
 
-            bookpH = new BookPublication
+            this.bookpH = new BookPublication
             {
+                Id = 1,
                 NumberOfPages = 36,
                 CoverMaterial = "Textil",
-                PublishingHouse = pH,
-                Book = book,
-                BookStock = bookStock,
+                PublishingHouse = this.pH,
+                Book = this.book,
+                BookStock = this.bookStock,
                 BookWithdrawals = new List<BookWithdrawal>()
             };
 
-            book.BookPublications = new List<BookPublication> { bookpH };
+            this.book.BookPublications = new List<BookPublication> { this.bookpH };
         }
 
+        /// <summary>
+        /// Tests the add book publication null.
+        /// </summary>
         [Test]
         public void TestAddBookPublicationNull()
         {
             BookPublication booPhInvalid = null;
 
-            var wasCreated = BookPublicationService.CreateBookPublication(booPhInvalid);
+            var wasCreated = this.BookPublicationService.CreateBookPublication(booPhInvalid);
             Assert.False(wasCreated);
-            LibraryContextMock.Verify(bP => bP.SaveChanges(), Times.Never());
+            this.LibraryContextMock.Verify(bP => bP.SaveChanges(), Times.Never());
         }
 
+        /// <summary>
+        /// Tests the add book publication invalid number of pages0.
+        /// </summary>
         [Test]
         public void TestAddBookPublicationInvalidNumberOfPages0()
         {
@@ -95,16 +148,19 @@ namespace LibraryManagementTests
             {
                 NumberOfPages = -1,
                 CoverMaterial = "Textil",
-                PublishingHouse = pH,
-                Book = book,
-                BookStock = bookStock
+                PublishingHouse = this.pH,
+                Book = this.book,
+                BookStock = this.bookStock
             };
 
-            var wasCreated = BookPublicationService.CreateBookPublication(booPhInvalid);
+            var wasCreated = this.BookPublicationService.CreateBookPublication(booPhInvalid);
             Assert.False(wasCreated);
-            LibraryContextMock.Verify(bP => bP.SaveChanges(), Times.Never());
+            this.LibraryContextMock.Verify(bP => bP.SaveChanges(), Times.Never());
         }
 
+        /// <summary>
+        /// Tests the add book publication invalid number of pages1.
+        /// </summary>
         [Test]
         public void TestAddBookPublicationInvalidNumberOfPages1()
         {
@@ -112,16 +168,39 @@ namespace LibraryManagementTests
             {
                 NumberOfPages = 100000000,
                 CoverMaterial = "Textil",
-                PublishingHouse = pH,
-                Book = book,
-                BookStock = bookStock
+                PublishingHouse = this.pH,
+                Book = this.book,
+                BookStock = this.bookStock
             };
 
-            var wasCreated = BookPublicationService.CreateBookPublication(booPhInvalid);
+            var wasCreated = this.BookPublicationService.CreateBookPublication(booPhInvalid);
             Assert.False(wasCreated);
-            LibraryContextMock.Verify(bP => bP.SaveChanges(), Times.Never());
+            this.LibraryContextMock.Verify(bP => bP.SaveChanges(), Times.Never());
         }
 
+        /// <summary>
+        /// Tests the add book publication invalid number of pages2.
+        /// </summary>
+        [Test]
+        public void TestAddBookPublicationInvalidNumberOfPages2()
+        {
+            var booPhInvalid = new BookPublication
+            {
+                NumberOfPages = 0,
+                CoverMaterial = "Textil",
+                PublishingHouse = this.pH,
+                Book = this.book,
+                BookStock = this.bookStock
+            };
+
+            var wasCreated = this.BookPublicationService.CreateBookPublication(booPhInvalid);
+            Assert.False(wasCreated);
+            this.LibraryContextMock.Verify(bP => bP.SaveChanges(), Times.Never());
+        }
+
+        /// <summary>
+        /// Tests the add book publication null cover material.
+        /// </summary>
         [Test]
         public void TestAddBookPublicationNullCoverMaterial()
         {
@@ -129,33 +208,39 @@ namespace LibraryManagementTests
             {
                 NumberOfPages = 673,
                 CoverMaterial = null,
-                PublishingHouse = pH,
-                Book = book,
-                BookStock = bookStock
+                PublishingHouse = this.pH,
+                Book = this.book,
+                BookStock = this.bookStock
             };
 
-            var wasCreated = BookPublicationService.CreateBookPublication(booPhInvalid);
+            var wasCreated = this.BookPublicationService.CreateBookPublication(booPhInvalid);
             Assert.False(wasCreated);
-            LibraryContextMock.Verify(bP => bP.SaveChanges(), Times.Never());
+            this.LibraryContextMock.Verify(bP => bP.SaveChanges(), Times.Never());
         }
 
+        /// <summary>
+        /// Tests the add book publication string length cover material0.
+        /// </summary>
         [Test]
         public void TestAddBookPublicationStringLengthCoverMaterial0()
         {
             var booPhInvalid = new BookPublication
             {
                 NumberOfPages = 673,
-                CoverMaterial = "",
-                PublishingHouse = pH,
-                Book = book,
-                BookStock = bookStock
+                CoverMaterial = string.Empty,
+                PublishingHouse = this.pH,
+                Book = this.book,
+                BookStock = this.bookStock
             };
 
-            var wasCreated = BookPublicationService.CreateBookPublication(booPhInvalid);
+            var wasCreated = this.BookPublicationService.CreateBookPublication(booPhInvalid);
             Assert.False(wasCreated);
-            LibraryContextMock.Verify(bP => bP.SaveChanges(), Times.Never());
+            this.LibraryContextMock.Verify(bP => bP.SaveChanges(), Times.Never());
         }
 
+        /// <summary>
+        /// Tests the add book publication string length cover material1.
+        /// </summary>
         [Test]
         public void TestAddBookPublicationStringLengthCoverMaterial1()
         {
@@ -163,16 +248,19 @@ namespace LibraryManagementTests
             {
                 NumberOfPages = 673,
                 CoverMaterial = "a",
-                PublishingHouse = pH,
-                Book = book,
-                BookStock = bookStock
+                PublishingHouse = this.pH,
+                Book = this.book,
+                BookStock = this.bookStock
             };
 
-            var wasCreated = BookPublicationService.CreateBookPublication(booPhInvalid);
+            var wasCreated = this.BookPublicationService.CreateBookPublication(booPhInvalid);
             Assert.False(wasCreated);
-            LibraryContextMock.Verify(bP => bP.SaveChanges(), Times.Never());
+            this.LibraryContextMock.Verify(bP => bP.SaveChanges(), Times.Never());
         }
 
+        /// <summary>
+        /// Tests the add book publication string length cover material2.
+        /// </summary>
         [Test]
         public void TestAddBookPublicationStringLengthCoverMaterial2()
         {
@@ -180,16 +268,59 @@ namespace LibraryManagementTests
             {
                 NumberOfPages = 673,
                 CoverMaterial = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque ut dui nec risus facilisis semper nec ut sapien. Curabitur non tincidunt arcu. Etiam ac elementum magna. Vivamus semper turpis suscipit condimentum malesuada. Sed sed massa facilisis, commodo est in, euismod nunc. Nulla vitae eros scelerisque, finibus nisl quis, tincidunt ipsum. Maecenas sodales tristique augue, non varius mi maximus et. Curabitur tempus, mi vel scelerisque eleifend, augue ex pellentesque diam, ut pellentesque libero elit sit amet justo.",
-                PublishingHouse = pH,
-                Book = book,
-                BookStock = bookStock
+                PublishingHouse = this.pH,
+                Book = this.book,
+                BookStock = this.bookStock
             };
 
-            var wasCreated = BookPublicationService.CreateBookPublication(booPhInvalid);
+            var wasCreated = this.BookPublicationService.CreateBookPublication(booPhInvalid);
             Assert.False(wasCreated);
-            LibraryContextMock.Verify(bP => bP.SaveChanges(), Times.Never());
+            this.LibraryContextMock.Verify(bP => bP.SaveChanges(), Times.Never());
         }
 
+        /// <summary>
+        /// Tests the add book publication regex cover material digits.
+        /// </summary>
+        [Test]
+        public void TestAddBookPublicationRegexCoverMaterialDigits()
+        {
+            var booPhInvalid = new BookPublication
+            {
+                NumberOfPages = 673,
+                CoverMaterial = "sintetic123",
+                PublishingHouse = this.pH,
+                Book = this.book,
+                BookStock = this.bookStock
+            };
+
+            var wasCreated = this.BookPublicationService.CreateBookPublication(booPhInvalid);
+            Assert.False(wasCreated);
+            this.LibraryContextMock.Verify(bP => bP.SaveChanges(), Times.Never());
+        }
+
+        /// <summary>
+        /// Tests the add book publication regex cover material symbols.
+        /// </summary>
+        [Test]
+        public void TestAddBookPublicationRegexCoverMaterialSymbols()
+        {
+            var booPhInvalid = new BookPublication
+            {
+                NumberOfPages = 673,
+                CoverMaterial = "sintetic123!@#",
+                PublishingHouse = this.pH,
+                Book = this.book,
+                BookStock = this.bookStock
+            };
+
+            var wasCreated = this.BookPublicationService.CreateBookPublication(booPhInvalid);
+            Assert.False(wasCreated);
+            this.LibraryContextMock.Verify(bP => bP.SaveChanges(), Times.Never());
+        }
+
+        /// <summary>
+        /// Tests the add book publication null publishing house.
+        /// </summary>
         [Test]
         public void TestAddBookPublicationNullPublishingHouse()
         {
@@ -198,15 +329,18 @@ namespace LibraryManagementTests
                 NumberOfPages = 673,
                 CoverMaterial = "Sintetic",
                 PublishingHouse = null,
-                Book = book,
-                BookStock = bookStock
+                Book = this.book,
+                BookStock = this.bookStock
             };
 
-            var wasCreated = BookPublicationService.CreateBookPublication(booPhInvalid);
+            var wasCreated = this.BookPublicationService.CreateBookPublication(booPhInvalid);
             Assert.False(wasCreated);
-            LibraryContextMock.Verify(bP => bP.SaveChanges(), Times.Never());
+            this.LibraryContextMock.Verify(bP => bP.SaveChanges(), Times.Never());
         }
 
+        /// <summary>
+        /// Tests the add book publication null book.
+        /// </summary>
         [Test]
         public void TestAddBookPublicationNullBook()
         {
@@ -214,16 +348,19 @@ namespace LibraryManagementTests
             {
                 NumberOfPages = 673,
                 CoverMaterial = "Sintetic",
-                PublishingHouse = pH,
+                PublishingHouse = this.pH,
                 Book = null,
-                BookStock = bookStock
+                BookStock = this.bookStock
             };
 
-            var wasCreated = BookPublicationService.CreateBookPublication(booPhInvalid);
+            var wasCreated = this.BookPublicationService.CreateBookPublication(booPhInvalid);
             Assert.False(wasCreated);
-            LibraryContextMock.Verify(bP => bP.SaveChanges(), Times.Never());
+            this.LibraryContextMock.Verify(bP => bP.SaveChanges(), Times.Never());
         }
 
+        /// <summary>
+        /// Tests the add book publication null book stock.
+        /// </summary>
         [Test]
         public void TestAddBookPublicationNullBookStock()
         {
@@ -231,24 +368,30 @@ namespace LibraryManagementTests
             {
                 NumberOfPages = 673,
                 CoverMaterial = "Sintetic",
-                PublishingHouse = pH,
-                Book = book,
+                PublishingHouse = this.pH,
+                Book = this.book,
                 BookStock = null
             };
 
-            var wasCreated = BookPublicationService.CreateBookPublication(booPhInvalid);
+            var wasCreated = this.BookPublicationService.CreateBookPublication(booPhInvalid);
             Assert.False(wasCreated);
-            LibraryContextMock.Verify(bP => bP.SaveChanges(), Times.Never());
+            this.LibraryContextMock.Verify(bP => bP.SaveChanges(), Times.Never());
         }
 
+        /// <summary>
+        /// Tests the add book publication valid.
+        /// </summary>
         [Test]
         public void TestAddBookPublicationValid()
         {
-            var wasCreated = BookPublicationService.CreateBookPublication(bookpH);
+            var wasCreated = this.BookPublicationService.CreateBookPublication(this.bookpH);
             Assert.True(wasCreated);
-            LibraryContextMock.Verify(bP => bP.SaveChanges(), Times.Once());
+            this.LibraryContextMock.Verify(bP => bP.SaveChanges(), Times.Once());
         }
 
+        /// <summary>
+        /// Tests the can rent book invalid.
+        /// </summary>
         [Test]
         public void TestCanRentBookInvalid()
         {
@@ -262,41 +405,52 @@ namespace LibraryManagementTests
             {
                 NumberOfPages = 673,
                 CoverMaterial = "Sintetic",
-                PublishingHouse = pH,
-                Book = book,
+                PublishingHouse = this.pH,
+                Book = this.book,
                 BookStock = invalidBookStock
             };
 
-            var canRent = BookPublicationService.CanRentBookStockAmount(booPhInvalid);
+            var canRent = this.BookPublicationService.CanRentBookStockAmount(booPhInvalid);
             Assert.False(canRent);
         }
 
+        /// <summary>
+        /// Tests the can rent book valid.
+        /// </summary>
         [Test]
         public void TestCanRentBookValid()
         {
-            var canRent = BookPublicationService.CanRentBookStockAmount(bookpH);
+            var canRent = this.BookPublicationService.CanRentBookStockAmount(this.bookpH);
             Assert.True(canRent);
         }
 
+        /// <summary>
+        /// Tests the can rent book stock amount.
+        /// </summary>
         [Test]
         public void TestCanRentBookStockAmount()
         {
-            bookStock.NumberOfBooks = 7;
-            var canRent = this.BookPublicationService.CanRentBookStockAmount(bookpH);
+            this.bookStock.NumberOfBooks = 7;
+            var canRent = this.BookPublicationService.CanRentBookStockAmount(this.bookpH);
             Assert.False(canRent);
         }
 
+        /// <summary>
+        /// Tests the get book withdrawals.
+        /// </summary>
         [Test]
         public void TestGetBookWithdrawals()
         {
-            Assert.IsTrue(bookpH.BookWithdrawals.Count == 0);
+            Assert.IsTrue(this.bookpH.BookWithdrawals.Count == 0);
         }
 
+        /// <summary>
+        /// Tests the set identifier.
+        /// </summary>
         [Test]
         public void TestSetId()
         {
-            bookpH.Id = 1;
-            Assert.IsTrue(bookpH.Id == 1);
+            Assert.IsTrue(this.bookpH.Id == 1);
         }
     }
 }
